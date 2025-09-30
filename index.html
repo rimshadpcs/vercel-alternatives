@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Vercel Alternative - Free Migration Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .live-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.2);
+            z-index: 1000;
+        }
+        
+        .live-counter .number {
+            font-size: 18px;
+            font-weight: 900;
+            margin: 0 5px;
+        }
+        
+        .live-counter .pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .container {
+            background: #fff;
+            color: #000;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(255,255,255,0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            color: #000;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #000;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .question-container {
+            display: none;
+        }
+        
+        .question-container.active {
+            display: block;
+        }
+        
+        .question {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 18px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            font-size: 16px;
+            color: #000;
+            text-align: left;
+        }
+        
+        .option:hover {
+            border-color: #000;
+            background: #f5f5f5;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            border-color: #000;
+            background: #000;
+            color: white;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-next {
+            background: #000;
+            color: white;
+        }
+        
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-next:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .btn-back {
+            background: #e0e0e0;
+            color: #000;
+        }
+        
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.active {
+            display: block;
+        }
+        
+        .result-card {
+            background: #000;
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .result-card h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .result-card .tagline {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+        
+        .result-features {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .result-features h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .alternatives {
+            margin-top: 30px;
+        }
+        
+        .alternatives h3 {
+            color: #000;
+            margin-bottom: 15px;
+        }
+        
+        .alt-card {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .alt-card:hover {
+            background: #e8e8e8;
+            transform: translateX(5px);
+        }
+        
+        .alt-card h4 {
+            color: #000;
+            margin-bottom: 8px;
+        }
+        
+        .alt-card p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .cta-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .cta-primary {
+            background: white;
+            color: #000;
+            border: 2px solid white;
+        }
+        
+        .cta-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255,255,255,0.3);
+        }
+        
+        .cta-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .cta-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .share-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .share-section h3 {
+            color: #000;
+            margin-bottom: 15px;
+        }
+        
+        .share-text {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 15px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .copy-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .restart-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            background: #e0e0e0;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .restart-btn:hover {
+            background: #d0d0d0;
+        }
+        
+        .celebration {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            border: 2px solid #000;
+        }
+        
+        .celebration h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #000;
+        }
+        
+        .celebration p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 640px) {
+            .live-counter {
+                top: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 10px 15px;
+            }
+            
+            .live-counter .number {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="live-counter">
+        <span class="pulse"></span>
+        <span class="number" id="counterNumber">...</span>
+        <span>developers found alternative</span>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Find Your Vercel Alternative</h1>
+            <p>Answer 5 quick questions to get your perfect match</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <!-- Question 1 -->
+        <div class="question-container active" data-question="1">
+            <div class="question">What type of project are you deploying?</div>
+            <div class="options">
+                <button class="option" data-value="nextjs">Next.js App</button>
+                <button class="option" data-value="static">Static Site (HTML/CSS/JS)</button>
+                <button class="option" data-value="react">React/Vue/Svelte SPA</button>
+                <button class="option" data-value="fullstack">Full-Stack App (Backend + Frontend)</button>
+                <button class="option" data-value="api">API/Backend Only</button>
+            </div>
+        </div>
+        
+        <!-- Question 2 -->
+        <div class="question-container" data-question="2">
+            <div class="question">What's your monthly budget?</div>
+            <div class="options">
+                <button class="option" data-value="free">Free Only ($0)</button>
+                <button class="option" data-value="low">Low Budget ($5-20/month)</button>
+                <button class="option" data-value="medium">Medium Budget ($20-100/month)</button>
+                <button class="option" data-value="high">High Budget ($100+/month)</button>
+                <button class="option" data-value="enterprise">Enterprise (Custom pricing)</button>
+            </div>
+        </div>
+        
+        <!-- Question 3 -->
+        <div class="question-container" data-question="3">
+            <div class="question">What's most important to you?</div>
+            <div class="options">
+                <button class="option" data-value="easy">Easy Setup & Great DX</button>
+                <button class="option" data-value="price">Lowest Price</button>
+                <button class="option" data-value="performance">Best Performance</button>
+                <button class="option" data-value="control">Full Control & Flexibility</button>
+                <button class="option" data-value="selfhost">Self-Hosting Capability</button>
+            </div>
+        </div>
+        
+        <!-- Question 4 -->
+        <div class="question-container" data-question="4">
+            <div class="question">What's your team size?</div>
+            <div class="options">
+                <button class="option" data-value="solo">Solo Developer</button>
+                <button class="option" data-value="small">Small Team (2-5)</button>
+                <button class="option" data-value="medium">Medium Team (6-20)</button>
+                <button class="option" data-value="large">Large Team (20+)</button>
+            </div>
+        </div>
+        
+        <!-- Question 5 -->
+        <div class="question-container" data-question="5">
+            <div class="question">How quickly do you need to migrate?</div>
+            <div class="options">
+                <button class="option" data-value="asap">ASAP (Today)</button>
+                <button class="option" data-value="week">This Week</button>
+                <button class="option" data-value="month">This Month</button>
+                <button class="option" data-value="planning">Just Planning Ahead</button>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="results">
+            <div class="celebration">
+                <h3>🎉 You're one of us now!</h3>
+                <p>You've joined thousands making the switch</p>
+            </div>
+            
+            <div class="result-card" id="resultCard">
+                <h2 id="platformName"></h2>
+                <div class="tagline" id="platformTagline"></div>
+                
+                <div class="result-features">
+                    <h3>Why This Platform?</h3>
+                    <ul class="feature-list" id="featureList"></ul>
+                </div>
+                
+                <div class="cta-buttons">
+                    <button class="cta-btn cta-primary" id="learnMoreBtn">Learn More</button>
+                    <button class="cta-btn cta-secondary" id="docsBtn">View Docs</button>
+                </div>
+            </div>
+            
+            <div class="alternatives">
+                <h3>Other Great Options:</h3>
+                <div id="alternativesList"></div>
+            </div>
+            
+            <div class="share-section">
+                <h3>Share Your Result!</h3>
+                <div class="share-text" id="shareText"></div>
+                <button class="copy-btn" id="copyBtn">Copy for X/Twitter</button>
+            </div>
+            
+            <button class="restart-btn" id="restartBtn">Take Quiz Again</button>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn btn-back" id="backBtn" style="display: none;">Back</button>
+            <button class="btn btn-next" id="nextBtn" disabled>Next</button>
+        </div>
+    </div>
+
+    <script>
+        const platforms = {
+            cloudflare: {
+                name: "Cloudflare Pages",
+                tagline: "Lightning-fast edge deployment with unbeatable free tier",
+                url: "https://pages.cloudflare.com",
+                docs: "https://developers.cloudflare.com/pages",
+                features: [
+                    "Unlimited bandwidth on free tier",
+                    "Global edge network (300+ cities)",
+                    "Built-in analytics & Web3 support",
+                    "Perfect for static sites & Jamstack",
+                    "Automatic HTTPS & DDoS protection"
+                ],
+                pricing: "Free tier + $20/month for pro features"
+            },
+            railway: {
+                name: "Railway",
+                tagline: "Developer-first platform with beautiful UX",
+                url: "https://railway.app",
+                docs: "https://docs.railway.app",
+                features: [
+                    "Amazing developer experience",
+                    "Usage-based pricing (fair & transparent)",
+                    "Supports any framework or language",
+                    "Built-in databases & observability",
+                    "GitHub integration & instant deploys"
+                ],
+                pricing: "$5 free credit/month + usage-based"
+            },
+            netlify: {
+                name: "Netlify",
+                tagline: "Trusted by millions, proven at scale",
+                url: "https://netlify.com",
+                docs: "https://docs.netlify.com",
+                features: [
+                    "Rock-solid reliability",
+                    "Excellent documentation",
+                    "Built-in forms & identity management",
+                    "Edge functions & split testing",
+                    "Enterprise-ready security"
+                ],
+                pricing: "Free tier + $19/month Pro"
+            },
+            render: {
+                name: "Render",
+                tagline: "Simple, powerful, and affordable cloud",
+                url: "https://render.com",
+                docs: "https://render.com/docs",
+                features: [
+                    "Easy database setup (PostgreSQL, Redis)",
+                    "Free SSL & automatic deploys",
+                    "Docker support built-in",
+                    "Background workers & cron jobs",
+                    "Great for full-stack apps"
+                ],
+                pricing: "Free tier available + starts at $7/month"
+            },
+            flyio: {
+                name: "Fly.io",
+                tagline: "Deploy close to your users worldwide",
+                url: "https://fly.io",
+                docs: "https://fly.io/docs",
+                features: [
+                    "Global application distribution",
+                    "Run Docker containers anywhere",
+                    "Built-in PostgreSQL clustering",
+                    "Powerful CLI & API",
+                    "Low-latency multi-region"
+                ],
+                pricing: "$5 free credit/month + usage-based"
+            },
+            coolify: {
+                name: "Coolify",
+                tagline: "Self-hosted alternative - own your infrastructure",
+                url: "https://coolify.io",
+                docs: "https://coolify.io/docs",
+                features: [
+                    "100% open-source & self-hosted",
+                    "No vendor lock-in ever",
+                    "Deploy to your own servers",
+                    "Supports 30+ services & frameworks",
+                    "One-click app installations"
+                ],
+                pricing: "Free (self-hosted) or $5/month cloud"
+            },
+            replit: {
+                name: "Replit",
+                tagline: "Code, deploy, and scale in one place",
+                url: "https://replit.com",
+                docs: "https://docs.replit.com",
+                features: [
+                    "In-browser development environment",
+                    "AI-powered coding assistance",
+                    "Instant deployment & hosting",
+                    "Built-in database & authentication",
+                    "Perfect for rapid prototyping"
+                ],
+                pricing: "Free tier + $7/month for more resources"
+            },
+            digitalocean: {
+                name: "DigitalOcean App Platform",
+                tagline: "Simple cloud hosting from a trusted provider",
+                url: "https://digitalocean.com/products/app-platform",
+                docs: "https://docs.digitalocean.com/products/app-platform",
+                features: [
+                    "Predictable pricing",
+                    "Excellent support & documentation",
+                    "Auto-scaling & load balancing",
+                    "Managed databases included",
+                    "Great for growing teams"
+                ],
+                pricing: "Starts at $5/month"
+            }
+        };
+
+        let currentQuestion = 1;
+        const totalQuestions = 5;
+        let answers = {};
+        let selectedOption = null;
+
+        const progressFill = document.getElementById('progressFill');
+        const nextBtn = document.getElementById('nextBtn');
+        const backBtn = document.getElementById('backBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const counterNumber = document.getElementById('counterNumber');
+
+        // Counter API
+        const COUNTER_API = 'https://api.countapi.xyz';
+        const COUNTER_NAMESPACE = 'vercel-alternatives';
+        const COUNTER_KEY = 'completions';
+
+        // Load counter
+        async function loadCounter() {
+            try {
+                const response = await fetch(`${COUNTER_API}/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+                const data = await response.json();
+                if (data.value !== undefined) {
+                    counterNumber.textContent = data.value.toLocaleString();
+                    return data.value;
+                } else {
+                    await fetch(`${COUNTER_API}/create?namespace=${COUNTER_NAMESPACE}&key=${COUNTER_KEY}&value=0`);
+                    counterNumber.textContent = '0';
+                    return 0;
+                }
+            } catch (error) {
+                counterNumber.textContent = '...';
+                return 0;
+            }
+        }
+
+        // Increment counter
+        async function incrementCounter() {
+            try {
+                const response = await fetch(`${COUNTER_API}/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+                const data = await response.json();
+                if (data.value !== undefined) {
+                    counterNumber.textContent = data.value.toLocaleString();
+                    return data.value;
+                }
+            } catch (error) {
+                console.log('Counter update failed');
+            }
+            return null;
+        }
+
+        loadCounter();
+
+        function updateProgress() {
+            const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+            progressFill.style.width = progress + '%';
+        }
+
+        // Option selection
+        document.querySelectorAll('.option').forEach(option => {
+            option.onclick = function() {
+                const container = this.closest('.question-container');
+                container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedOption = this.getAttribute('data-value');
+                nextBtn.disabled = false;
+            };
+        });
+
+        // Next button
+        nextBtn.onclick = function() {
+            if (!selectedOption) return;
+            
+            answers[`q${currentQuestion}`] = selectedOption;
+            
+            if (currentQuestion < totalQuestions) {
+                document.querySelector(`[data-question="${currentQuestion}"]`).classList.remove('active');
+                currentQuestion++;
+                document.querySelector(`[data-question="${currentQuestion}"]`).classList.add('active');
+                updateProgress();
+                
+                nextBtn.disabled = true;
+                selectedOption = null;
+                backBtn.style.display = 'block';
+                
+                if (currentQuestion === totalQuestions) {
+                    nextBtn.textContent = 'Show Results';
+                }
+            } else {
+                showResults();
+            }
+        };
+
+        // Back button
+        backBtn.onclick = function() {
+            if (currentQuestion > 1) {
+                document.querySelector(`[data-question="${currentQuestion}"]`).classList.remove('active');
+                currentQuestion--;
+                document.querySelector(`[data-question="${currentQuestion}"]`).classList.add('active');
+                updateProgress();
+                
+                const prevAnswer = answers[`q${currentQuestion}`];
+                if (prevAnswer) {
+                    const prevOption = document.querySelector(`[data-question="${currentQuestion}"] [data-value="${prevAnswer}"]`);
+                    if (prevOption) {
+                        prevOption.click();
+                    }
+                }
+                
+                if (currentQuestion === 1) {
+                    backBtn.style.display = 'none';
+                }
+                
+                nextBtn.textContent = 'Next';
+            }
+        };
+
+        function calculateBestPlatform() {
+            const scores = {
+                cloudflare: 0,
+                railway: 0,
+                netlify: 0,
+                render: 0,
+                flyio: 0,
+                coolify: 0,
+                replit: 0,
+                digitalocean: 0
+            };
+
+            if (answers.q1 === 'static') {
+                scores.cloudflare += 3;
+                scores.netlify += 3;
+            } else if (answers.q1 === 'nextjs') {
+                scores.cloudflare += 2;
+                scores.netlify += 2;
+                scores.render += 2;
+            } else if (answers.q1 === 'fullstack' || answers.q1 === 'api') {
+                scores.railway += 3;
+                scores.render += 3;
+                scores.flyio += 2;
+            } else if (answers.q1 === 'react') {
+                scores.cloudflare += 2;
+                scores.netlify += 2;
+                scores.replit += 1;
+            }
+
+            if (answers.q2 === 'free') {
+                scores.cloudflare += 3;
+                scores.netlify += 2;
+                scores.replit += 2;
+            } else if (answers.q2 === 'low') {
+                scores.railway += 3;
+                scores.render += 2;
+                scores.coolify += 3;
+            } else if (answers.q2 === 'enterprise') {
+                scores.netlify += 2;
+                scores.digitalocean += 3;
+            }
+
+            if (answers.q3 === 'easy') {
+                scores.railway += 3;
+                scores.netlify += 2;
+                scores.replit += 3;
+            } else if (answers.q3 === 'price') {
+                scores.cloudflare += 3;
+                scores.coolify += 3;
+            } else if (answers.q3 === 'performance') {
+                scores.cloudflare += 3;
+                scores.flyio += 3;
+            } else if (answers.q3 === 'control') {
+                scores.coolify += 3;
+                scores.flyio += 2;
+            } else if (answers.q3 === 'selfhost') {
+                scores.coolify += 5;
+            }
+
+            if (answers.q4 === 'solo') {
+                scores.railway += 2;
+                scores.replit += 2;
+                scores.cloudflare += 1;
+            } else if (answers.q4 === 'large') {
+                scores.netlify += 2;
+                scores.digitalocean += 3;
+            }
+
+            if (answers.q5 === 'asap') {
+                scores.cloudflare += 2;
+                scores.netlify += 2;
+                scores.replit += 2;
+            }
+
+            const sortedPlatforms = Object.entries(scores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+
+            return sortedPlatforms.map(([key]) => key);
+        }
+
+        function showResults() {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            document.querySelector('.buttons').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            
+            const topPlatforms = calculateBestPlatform();
+            const winner = platforms[topPlatforms[0]];
+            
+            document.getElementById('platformName').textContent = winner.name;
+            document.getElementById('platformTagline').textContent = winner.tagline;
+            
+            const featureList = document.getElementById('featureList');
+            featureList.innerHTML = '';
+            winner.features.forEach(feature => {
+                const li = document.createElement('li');
+                li.textContent = feature;
+                featureList.appendChild(li);
+            });
+            
+            document.getElementById('learnMoreBtn').onclick = () => window.open(winner.url, '_blank');
+            document.getElementById('docsBtn').onclick = () => window.open(winner.docs, '_blank');
+            
+            const altList = document.getElementById('alternativesList');
+            altList.innerHTML = '';
+            topPlatforms.slice(1).forEach(key => {
+                const platform = platforms[key];
+                const altCard = document.createElement('div');
+                altCard.className = 'alt-card';
+                altCard.innerHTML = `
+                    <h4>${platform.name}</h4>
+                    <p>${platform.tagline} - ${platform.pricing}</p>
+                `;
+                altCard.onclick = () => window.open(platform.url, '_blank');
+                altList.appendChild(altCard);
+            });
+            
+            const shareText = `Just found my Vercel alternative: ${winner.name}! 🚀\n\n"${winner.tagline}"\n\nFind yours: [Your URL Here]\n\n#DeveloperTools #WebDev`;
+            document.getElementById('shareText').textContent = shareText;
+            
+            document.querySelector('.results').classList.add('active');
+            
+            // Increment counter and update celebration message
+            incrementCounter().then(count => {
+                if (count) {
+                    const celebrationText = document.querySelector('.celebration p');
+                    celebrationText.textContent = `You've joined ${count.toLocaleString()} developers who found their alternative`;
+                }
+            });
+        }
+
+        document.getElementById('copyBtn').onclick = function() {
+            const text = document.getElementById('shareText').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                this.textContent = 'Copied! ✓';
+                setTimeout(() => {
+                    this.textContent = 'Copy for X/Twitter';
+                }, 2000);
+            });
+        };
+
+        restartBtn.onclick = function() {
+            currentQuestion = 1;
+            answers = {};
+            selectedOption = null;
+            
+            document.querySelector('.results').classList.remove('active');
+            document.querySelector('.buttons').style.display = 'flex';
+            document.querySelector('.progress-bar').style.display = 'block';
+            document.querySelector('[data-question="1"]').classList.add('active');
+            
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            
+            nextBtn.disabled = true;
+            nextBtn.textContent = 'Next';
+            backBtn.style.display = 'none';
+            updateProgress();
+        };
+
+        updateProgress();
+    </script>
+</body>
+</html>
