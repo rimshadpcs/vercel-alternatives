@@ -36,12 +36,6 @@
             z-index: 1000;
         }
         
-        .live-counter .number {
-            font-size: 18px;
-            font-weight: 900;
-            margin: 0 5px;
-        }
-        
         .live-counter .pulse {
             display: inline-block;
             width: 8px;
@@ -395,18 +389,13 @@
                 font-size: 12px;
                 padding: 10px 15px;
             }
-            
-            .live-counter .number {
-                font-size: 16px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="live-counter">
         <span class="pulse"></span>
-        <span class="number" id="counterNumber">...</span>
-        <span>developers found alternative</span>
+        <span>100s of devs found alternative here</span>
     </div>
     
     <div class="container">
@@ -481,7 +470,7 @@
         <div class="results">
             <div class="celebration">
                 <h3>🎉 You're one of us now!</h3>
-                <p>You've joined thousands making the switch</p>
+                <p>You've joined 100s of developers who found their alternative</p>
             </div>
             
             <div class="result-card" id="resultCard">
@@ -644,42 +633,6 @@
         const nextBtn = document.getElementById('nextBtn');
         const backBtn = document.getElementById('backBtn');
         const restartBtn = document.getElementById('restartBtn');
-        const counterNumber = document.getElementById('counterNumber');
-
-        // Use GoatCounter API - more reliable and privacy-focused
-        // Alternative: We'll use a simple localStorage + random initial count for demo
-        
-        let completionCount = 0;
-
-        // Load counter - using a combo of localStorage and estimation
-        function loadCounter() {
-            // Check if we have a local count
-            const stored = localStorage.getItem('vercel-alt-local-count');
-            
-            if (stored) {
-                completionCount = parseInt(stored);
-            } else {
-                // Start with a realistic seed number based on time
-                // This gives social proof even for new deployments
-                const daysSinceLaunch = Math.floor((Date.now() - new Date('2025-09-30').getTime()) / (1000 * 60 * 60 * 24));
-                completionCount = Math.max(0, daysSinceLaunch * 50); // ~50 per day estimate
-                localStorage.setItem('vercel-alt-local-count', completionCount);
-            }
-            
-            counterNumber.textContent = completionCount.toLocaleString();
-            return completionCount;
-        }
-
-        // Increment counter
-        function incrementCounter() {
-            completionCount++;
-            localStorage.setItem('vercel-alt-local-count', completionCount);
-            counterNumber.textContent = completionCount.toLocaleString();
-            console.log('Counter incremented to:', completionCount);
-            return completionCount;
-        }
-
-        loadCounter();
 
         function updateProgress() {
             const progress = ((currentQuestion - 1) / totalQuestions) * 100;
@@ -866,11 +819,6 @@
             document.getElementById('shareText').textContent = shareText;
             
             document.querySelector('.results').classList.add('active');
-            
-            // Increment counter and update celebration message
-            const count = incrementCounter();
-            const celebrationText = document.querySelector('.celebration p');
-            celebrationText.textContent = `You've joined ${count.toLocaleString()} developers who found their alternative`;
         }
 
         document.getElementById('copyBtn').onclick = function() {
